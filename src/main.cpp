@@ -8,8 +8,8 @@
 // SFML and Other Main Stuff
 sf::RenderWindow window; // The Window
 sf::Event event; // For Handling Window Events
-sf::VertexArray points; // All the Points on the Screen
-const float SPEED = 5, SPEED2 = SPEED / 2, SPEED3 = SPEED / 3; // The Amount of Pixels each Point Moves each Frame
+sf::VertexArray points; // An Array for Storing all the Vertices
+const float SPEED = 5, SPEED2 = SPEED / 2, SPEED3 = SPEED / 3; // The Amount of Pixels Each Point Moves Each Frame
 
 // A Single Point on the Screen
 struct Point {
@@ -24,6 +24,7 @@ struct Triangle {
 // A Shape made out of Triangles
 struct Square {
 	float x, y, z;
+	bool isVisible = true;
 	Triangle tri1, tri2;
 
 	Square(float _x, float _y, float _z) {
@@ -55,7 +56,7 @@ int main() {
 	// Setting the Vertices to Connect via Lines
 	points.setPrimitiveType(sf::Lines);
 
-	// Declaring All the Shapes
+	// Declaring all the Shapes
 	Square square(400, 300, 50);
 
 	// Program Loop
@@ -113,14 +114,18 @@ int main() {
 			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-			square.tri1.a.x -= SPEED3,	square.tri1.a.y -= SPEED3;
-			square.tri1.b.x += SPEED3,	square.tri1.b.y -= SPEED3;
-			square.tri1.c.x -= SPEED3,	square.tri1.c.y += SPEED3;
-			square.tri2.a.x += SPEED3,	square.tri2.a.y += SPEED3;
-			square.tri2.b.x -= SPEED3,	square.tri2.b.y += SPEED3;
-			square.tri2.c.x += SPEED3,	square.tri2.c.y -= SPEED3;
+			if (square.z < 300) {
+				square.z += SPEED3;
+				square.tri1.a.x -= SPEED3,	square.tri1.a.y -= SPEED3;
+				square.tri1.b.x += SPEED3,	square.tri1.b.y -= SPEED3;
+				square.tri1.c.x -= SPEED3,	square.tri1.c.y += SPEED3;
+				square.tri2.a.x += SPEED3,	square.tri2.a.y += SPEED3;
+				square.tri2.b.x -= SPEED3,	square.tri2.b.y += SPEED3;
+				square.tri2.c.x += SPEED3,	square.tri2.c.y -= SPEED3;
+			}
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+			square.z -= SPEED3;
 			square.tri1.a.x += SPEED3,	square.tri1.a.y += SPEED3;
 			square.tri1.b.x -= SPEED3,	square.tri1.b.y += SPEED3;
 			square.tri1.c.x += SPEED3,	square.tri1.c.y -= SPEED3;
@@ -145,16 +150,24 @@ int main() {
 			square.tri2.c.x -= SPEED;
 		}
 
-		// Adding the Points
-		points.clear();
-		plot(square.tri1.a.x, square.tri1.a.y, square.tri1.b.x, square.tri1.b.y);
-		plot(square.tri1.b.x, square.tri1.b.y, square.tri1.c.x, square.tri1.c.y);
-		plot(square.tri1.c.x, square.tri1.c.y, square.tri1.a.x, square.tri1.a.y);
-		plot(square.tri2.a.x, square.tri2.a.y, square.tri2.b.x, square.tri2.b.y);
-		plot(square.tri2.b.x, square.tri2.b.y, square.tri2.c.x, square.tri2.c.y);
-		plot(square.tri2.c.x, square.tri2.c.y, square.tri2.a.x, square.tri2.a.y);
+		// Making the square Disapear when it's Too Far Away
+		if (square.z < 0)
+			square.isVisible = false;
+		else
+			square.isVisible = true;
 
-		// Draw Lines
+		// Drawing Lines
+		points.clear();
+		if (square.isVisible) {
+			plot(square.tri1.a.x, square.tri1.a.y, square.tri1.b.x, square.tri1.b.y);
+			plot(square.tri1.b.x, square.tri1.b.y, square.tri1.c.x, square.tri1.c.y);
+			plot(square.tri1.c.x, square.tri1.c.y, square.tri1.a.x, square.tri1.a.y);
+			plot(square.tri2.a.x, square.tri2.a.y, square.tri2.b.x, square.tri2.b.y);
+			plot(square.tri2.b.x, square.tri2.b.y, square.tri2.c.x, square.tri2.c.y);
+			plot(square.tri2.c.x, square.tri2.c.y, square.tri2.a.x, square.tri2.a.y);
+		}
+
+		// Displaying Lines
 		window.clear();
 		window.draw(points);
 		window.display();
